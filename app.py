@@ -1,18 +1,12 @@
-"""Minimal Flask Bank App with Clean UI
-====================================
-Single file | Flask + SQLite | Wheel gauge turns green on deposit, red on withdraw.
-"""
 from flask import Flask, request, redirect, url_for, session, render_template_string, g
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 
 DB_PATH = "bank.db"
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "dev"  # replace for production
+app.config["SECRET_KEY"] = "dev" 
 
-# --------------------------------------------------
-# Database helpers
-# --------------------------------------------------
+
 
 def get_db():
     if "db" not in g:
@@ -42,9 +36,6 @@ def init_db():
 with app.app_context():
     init_db()
 
-# --------------------------------------------------
-# Data access / domain logic
-# --------------------------------------------------
 
 def create_user(email, pw_hash):
     get_db().execute("INSERT INTO users (email, password) VALUES (?, ?)", (email, pw_hash))
@@ -63,21 +54,14 @@ def change_balance(uid, delta):
     get_db().execute("UPDATE users SET balance = balance + ? WHERE id = ?", (delta, uid))
     get_db().commit()
 
-# --------------------------------------------------
-# Auth helper
-# --------------------------------------------------
 
 def current_user():
     uid = session.get("user_id")
     return fetch_user(uid) if uid else None
 
-# --------------------------------------------------
-# UI helpers (inline CSS + HTML)
-# --------------------------------------------------
 
 BASE_STYLE = """
 <style>
-/* ---- Layout ---- */
 body {
   font-family: system-ui, Arial, sans-serif;
   margin: 0;
@@ -88,7 +72,6 @@ body {
   background: #f5f7fa;
 }
 
-/* ---- Card ---- */
 .card {
   background: #fff;
   width: 340px;
@@ -98,7 +81,6 @@ body {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
 }
 
-/* ---- Wheel gauge ---- */
 .wheel {
   width: 180px;
   height: 180px;
@@ -116,7 +98,6 @@ body {
   color: #333;
 }
 
-/* ---- Forms ---- */
 input {
   width: 100%;
   padding: 0.55rem;
@@ -137,7 +118,6 @@ button {
 }
 button:hover { background: #0051d4; }
 
-/* ---- Misc ---- */
 a {
   display: block;
   margin-top: 1rem;
@@ -159,7 +139,6 @@ def page(content: str, wheel_color: str | None = None) -> str:
         "</body></html>"
     )
 
-# ---- View factories --------------------------------------------------
 
 def view_signup():
     return page(
@@ -208,9 +187,7 @@ def view_dashboard(email: str, balance: float, action: str | None):
         wheel_color=wheel_color,
     )
 
-# --------------------------------------------------
-# Routes
-# --------------------------------------------------
+
 
 @app.route("/")
 def home():
@@ -276,9 +253,7 @@ def make_transaction():
 
     return redirect(url_for("dashboard", action=action))
 
-# --------------------------------------------------
-# Main
-# --------------------------------------------------
+
 
 if __name__ == "__main__":
     app.run(debug=True)
